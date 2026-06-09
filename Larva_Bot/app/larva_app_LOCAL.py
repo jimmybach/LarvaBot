@@ -48,7 +48,7 @@ MODEL_OPTIONS = {
     },
 
     "Qwen 4B Finetuned (Slower)": {
-        "repo": "jimmybach33/larvabot-4b",
+        "repo": "jimmybach33/larvabot-qwen-4b",
         "subfolder": "arvind-merged",
     }
 }
