@@ -42,16 +42,26 @@ MODEL_OPTIONS = {
 }
 
 @st.cache_resource
-def load_model(model_name, subfolder='arvind-merged'):
-    tokenizer = AutoTokenizer.from_pretrained(model_name, subfolder=subfolder)
+def load_model(model_name, subfolder=None):
+    if subfolder is not None:
+    
+        tokenizer = AutoTokenizer.from_pretrained(model_name, subfolder=subfolder)
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        device_map="auto",
-        torch_dtype="auto",
-        subfolder=subfolder,
-    )
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            device_map="auto",
+            torch_dtype="auto",
+            subfolder=subfolder,
+        )
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            device_map="auto",
+            torch_dtype="auto",
+        )
+`
     return tokenizer, model
 
 # -------------------
