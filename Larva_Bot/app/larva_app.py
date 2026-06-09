@@ -36,43 +36,38 @@ MODEL_OPTIONS = {
         "repo": "Qwen/Qwen3-0.6B",
         "subfolder": None,
     },
-    "Qwen 4B Finetuned (NOTE: Only available locally)": {
-        "repo": "jimmybach33/larvabot-4b",
+    "Qwen 0.6B Finetuned": {
+        "repo": "jimmybach33/larvabot-0.6b",
         "subfolder": "arvind-merged",
     },
     "Llama 3.2 1B (Faster, less accurate)": {
         "repo": "meta-llama/Llama-3.2-1B-Instruct",
         "subfolder": None,
     },
-
-    "Llama 3.2 3B (More accurate, slower)": {
-        "repo": "meta-llama/Llama-3.2-3B-Instruct",
-        "subfolder": None,
-    }
 }
 
 @st.cache_resource
 def load_model(model_name, subfolder=None):
-    #if subfolder is not None:
+    if subfolder is not None:
     
-    #    tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN, subfolder=subfolder)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN, subfolder=subfolder)
 
-    #    model = AutoModelForCausalLM.from_pretrained(
-    #        model_name,
-    #        token=HF_TOKEN,
-    #        device_map="auto",
-    #        torch_dtype="auto",
-    #        subfolder=subfolder,
-        #)
-    #else:
-    tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            token=HF_TOKEN,
+            device_map="auto",
+            torch_dtype="auto",
+            subfolder=subfolder,
+        )
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN)
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        token=HF_TOKEN,
-        device_map="auto",
-        torch_dtype="auto",
-    )
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            token=HF_TOKEN,
+            device_map="auto",
+            torch_dtype="auto",
+        )
 
     return tokenizer, model
 
