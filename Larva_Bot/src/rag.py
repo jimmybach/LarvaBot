@@ -17,7 +17,7 @@ arvind_facts = [
     "Arvind is an amateur bartender",
     "Arvind occasionally plays guitar",
     "Arvind's favorite food are Peruvian Verde wings from Buffalo Wing Factory",
-    "Arvind wants to get a six pack by the end of the summer"
+    "Arvind wants to get six pack abs by the end of the summer"
 ]
 
 def establish_chromadb_connection():
