@@ -16,7 +16,12 @@ sys.path.insert(0, str(ROOT))
 
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
 from src.rag import establish_chromadb_connection
-arvind_collection = establish_chromadb_connection()
+
+if not st.session_state.get("arvind_collection"):
+    arvind_collection = establish_chromadb_connection()
+    st.session_state.arvind_collection = arvind_collection
+else:
+    arvind_collection = st.session_state.arvind_collection
 
 ASSETS_DIR = ROOT
 LARVA_IMG = ASSETS_DIR / "larva.jpg"
