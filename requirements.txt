@@ -23,3 +23,6 @@ torchao>=0.12.0
 
 streamlit>=1.0.0
 torchvision>=0.15.0
+
+sentencepiece
+tiktoken

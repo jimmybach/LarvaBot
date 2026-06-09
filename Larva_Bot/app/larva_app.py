@@ -37,12 +37,13 @@ MODEL_OPTIONS = {
 
 @st.cache_resource
 def load_model(model_name):
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False, trust_remote_code=True)
 
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         device_map="auto",
         torch_dtype="auto",
+        trust_remote_code=True
     )
 
     return tokenizer, model
