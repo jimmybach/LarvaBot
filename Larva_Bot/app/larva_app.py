@@ -19,7 +19,7 @@ st.set_page_config(
 
 MODEL_OPTIONS = {
     "Qwen 0.6B (Faster, less accurate)": "Qwen/Qwen3-0.6B",
-    "Qwen 4B Finetuned (Slower, more accurate)": "./models/arvind-merged",
+    "Qwen 4B Finetuned (Slower, more accurate)": "jimmybach33/larvabot-4b",
 }
 
 @st.cache_resource
