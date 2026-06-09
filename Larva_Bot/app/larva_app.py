@@ -1,15 +1,11 @@
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-
 import streamlit as st
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import gc
 from PIL import Image
+import os
+os.chdir('LarvaBot/Larva_Bot')
 
 st.set_page_config(
     page_title="LarvaBot",
@@ -38,7 +34,7 @@ def load_model(model_name):
 # -------------------
 # Sidebar
 # -------------------
-st.image("larva.jpg")
+st.image("./larva.jpg")
 
 with st.sidebar:
     img=Image.open("yungvind.jpg").rotate(-90,expand=True)
