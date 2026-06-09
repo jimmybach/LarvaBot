@@ -30,12 +30,13 @@ MODEL_OPTIONS = {
 
 @st.cache_resource
 def load_model(model_name, subfolder=None):
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, subfolder=subfolder, trust_remote_code=True)
 
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         device_map="auto",
         torch_dtype="auto",
+        subfolder=subfolder,
     )
 
     return tokenizer, model
