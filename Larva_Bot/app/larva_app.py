@@ -2,7 +2,7 @@ import streamlit as st
 import os
 print(os.getcwd())
 print(os.listdir())
-os.chdir('mount/src/larvabot/main/Larva_Bot')
+os.chdir('./Larva_Bot')
 print(os.listdir())
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
 from transformers import AutoModelForCausalLM, AutoTokenizer
