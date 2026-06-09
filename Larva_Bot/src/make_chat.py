@@ -1,4 +1,5 @@
 import re
+import torch
 from src.rag import make_system_prompt, query_arvind_facts
 
 
@@ -20,19 +21,20 @@ def insert_system_prompt(messages, system_prompt):
 def clean_response(text):
     return re.sub(r"[^\w\s]", "", text).capitalize()
 
-def generate_response(tokenizer, model, messages, temperature=0.9):
+def generate_response(tokenizer, model, messages, temperature=0.9, device="cpu"):
   prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
 
-  inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+  inputs = tokenizer(prompt, return_tensors="pt").to(device)
 
-  generated = model.generate(
-      **inputs,
-      max_new_tokens=20,
-      do_sample=True,
-      temperature=temperature,
-      top_p=0.95,
-      pad_token_id=tokenizer.eos_token_id
-  )
+  with torch.inference_mode():
+    generated = model.generate(
+        **inputs,
+        max_new_tokens=20,
+        do_sample=True,
+        temperature=temperature,
+        top_p=0.95,
+        pad_token_id=tokenizer.eos_token_id
+    )
 
   response = tokenizer.decode(
       generated[0][inputs["input_ids"].shape[-1]:],
@@ -41,7 +43,7 @@ def generate_response(tokenizer, model, messages, temperature=0.9):
 
   return response
 
-def chat_with_arvind(tokenizer, model, user_input, temperature=0.9):
+def chat_with_arvind(tokenizer, model, user_input, temperature=0.9, device="cpu"):
   global messages
 
   formatted_facts = query_arvind_facts(user_input)
@@ -51,11 +53,14 @@ def chat_with_arvind(tokenizer, model, user_input, temperature=0.9):
                   'content':user_input})
 
   insert_system_prompt(messages, system_prompt)
-  response=generate_response(tokenizer, model, messages)
+  response=generate_response(tokenizer, model, messages, device=device, temperature=temperature)
 
 
   messages.append({'role':'assistant',
                   'content':response})
+  
+  if len(messages)>11:
+    messages=[messages[0]]+messages[-10:]
   
   return clean_response(response)
 

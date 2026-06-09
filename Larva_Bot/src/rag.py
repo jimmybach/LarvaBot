@@ -16,14 +16,16 @@ arvind_facts = [
     "Arvind's alter egos are StaidStarling31 and Larva23",
     "Arvind is an amateur bartender",
     "Arvind occasionally plays guitar",
-    "Arvind's favorite food are Peruvian Verde wings from Buffalo Wing Factory"
+    "Arvind's favorite food are Peruvian Verde wings from Buffalo Wing Factory",
+    "Arvind wants to get a six pack by the end of the summer"
 ]
 
-client=chromadb.PersistentClient(path='./data/arvind_fact_db')
-arvind_collection=client.get_or_create_collection(name='arvind_collection',metadata={'hnsw:space':'cosine'})
-
-arvind_collection.add(documents=arvind_facts,
+def establish_chromadb_connection():
+    client=chromadb.PersistentClient(path='./data/arvind_fact_db')
+    collection=client.get_or_create_collection(name='arvind_collection',metadata={'hnsw:space':'cosine'})
+    collection.add(documents=arvind_facts,
                       ids=[f'id{idx}' for idx in range(len(arvind_facts))])
+    return collection
 
 def query_arvind_facts(query):
     relevant_facts=arvind_collection.query(query_texts=[query], n_results=3)
