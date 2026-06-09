@@ -42,7 +42,7 @@ MODEL_OPTIONS = {
 }
 
 @st.cache_resource
-def load_model(model_name, subfolder=None):
+def load_model(model_name, subfolder='arvind-merged'):
     tokenizer = AutoTokenizer.from_pretrained(model_name, subfolder=subfolder)
 
     model = AutoModelForCausalLM.from_pretrained(
