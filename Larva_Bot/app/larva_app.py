@@ -61,7 +61,7 @@ def load_model(model_name, subfolder=None):
             device_map="auto",
             torch_dtype="auto",
         )
-`
+
     return tokenizer, model
 
 # -------------------
