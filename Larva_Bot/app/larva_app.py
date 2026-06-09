@@ -35,7 +35,7 @@ MODEL_OPTIONS = {
         "repo": "Qwen/Qwen3-0.6B",
         "subfolder": None,
     },
-    "Qwen 4B Finetuned (Slower, more accurate)": {
+    "Qwen 4B Finetuned (NOTE: Only available locally)": {
         "repo": "jimmybach33/larvabot-4b",
         "subfolder": "arvind-merged",
     },
@@ -43,24 +43,24 @@ MODEL_OPTIONS = {
 
 @st.cache_resource
 def load_model(model_name, subfolder=None):
-    if subfolder is not None:
+    #if subfolder is not None:
     
-        tokenizer = AutoTokenizer.from_pretrained(model_name, subfolder=subfolder)
+    #    tokenizer = AutoTokenizer.from_pretrained(model_name, subfolder=subfolder)
 
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            device_map="auto",
-            torch_dtype="auto",
-            subfolder=subfolder,
-        )
-    else:
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
+    #    model = AutoModelForCausalLM.from_pretrained(
+    #        model_name,
+    #        device_map="auto",
+    #        torch_dtype="auto",
+    #        subfolder=subfolder,
+        #)
+    #else:
+    tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
 
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            device_map="auto",
-            torch_dtype="auto",
-        )
+    model = AutoModelForCausalLM.from_pretrained(
+        "Qwen/Qwen3-0.6B",
+        device_map="auto",
+        torch_dtype="auto",
+    )
 
     return tokenizer, model
 
