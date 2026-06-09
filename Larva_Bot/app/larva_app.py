@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT))
 
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
 
-ASSETS_DIR = ROOT / "assets"
+ASSETS_DIR = ROOT
 LARVA_IMG = ASSETS_DIR / "larva.jpg"
 YUNGVIND_IMG = ASSETS_DIR / "yungvind.jpg"
 
