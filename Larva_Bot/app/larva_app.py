@@ -111,7 +111,7 @@ with st.spinner("Loading model..."):
 # -------------------
 
 if LARVA_IMG.exists():
-    st.image(str(LARVA_IMG), width=180)
+    st.image(str(LARVA_IMG))
 
 st.title("LarvaBot")
 st.caption("Berman Admin really out here making him AI :(")
