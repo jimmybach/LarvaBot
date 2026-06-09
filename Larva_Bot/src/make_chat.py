@@ -43,10 +43,10 @@ def generate_response(tokenizer, model, messages, temperature=0.9, device="cpu")
 
   return response
 
-def chat_with_arvind(tokenizer, model, user_input, temperature=0.9, device="cpu"):
+def chat_with_arvind(tokenizer, model, user_input, collection, temperature=0.9, device="cpu"):
   global messages
 
-  formatted_facts = query_arvind_facts(user_input)
+  formatted_facts = query_arvind_facts(user_input, collection)
   system_prompt = make_system_prompt(formatted_facts)
 
   messages.append({'role':'user',

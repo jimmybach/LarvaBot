@@ -27,8 +27,8 @@ def establish_chromadb_connection():
                       ids=[f'id{idx}' for idx in range(len(arvind_facts))])
     return collection
 
-def query_arvind_facts(query):
-    relevant_facts=arvind_collection.query(query_texts=[query], n_results=3)
+def query_arvind_facts(query, collection):
+    relevant_facts=collection.query(query_texts=[query], n_results=3)
     return "\n".join(f"- {fact}" for fact in relevant_facts['documents'][0])
 
 def make_system_prompt(formatted_facts):

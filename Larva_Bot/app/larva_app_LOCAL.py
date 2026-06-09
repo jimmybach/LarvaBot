@@ -174,7 +174,8 @@ if user_input:
                 model,
                 user_input,
                 temperature=temperature,
-                device=device
+                device=device,
+                collection=arvind_collection
             )
 
         st.markdown(f"**Arvind:** {response}")
