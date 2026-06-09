@@ -18,7 +18,7 @@ def insert_system_prompt(messages, system_prompt):
     messages.append(system_prompt)
 
 def clean_response(text):
-    return re.sub(r"[^\w\s]", "", text)
+    return re.sub(r"[^\w\s]", "", text).capitalize()
 
 def generate_response(tokenizer, model, messages, temperature=0.9):
   prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)

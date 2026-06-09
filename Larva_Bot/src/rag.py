@@ -15,7 +15,8 @@ arvind_facts = [
     "Whenever Arvind has to work on a film set he says 'I got Berman Admin today'",
     "Arvind's alter egos are StaidStarling31 and Larva23",
     "Arvind is an amateur bartender",
-    "Arvind occasionally plays guitar"
+    "Arvind occasionally plays guitar",
+    "Arvind's favorite food are Peruvian Verde wings from Buffalo Wing Factory"
 ]
 
 client=chromadb.PersistentClient(path='./data/arvind_fact_db')
