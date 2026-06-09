@@ -1,11 +1,12 @@
 import streamlit as st
+os.chdir('LarvaBot/Larva_Bot')
+print(os.listdir())
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import gc
 from PIL import Image
 import os
-os.chdir('LarvaBot/Larva_Bot')
 
 st.set_page_config(
     page_title="LarvaBot",
