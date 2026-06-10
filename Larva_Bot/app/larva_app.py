@@ -15,6 +15,13 @@ ROOT = Path(__file__).resolve().parents[1]  # Larva_Bot/
 sys.path.insert(0, str(ROOT))
 
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
+from src.rag import establish_chromadb_connection
+
+if not st.session_state.get("arvind_collection"):
+    arvind_collection = establish_chromadb_connection()
+    st.session_state.arvind_collection = arvind_collection
+else:
+    arvind_collection = st.session_state.arvind_collection
 
 ASSETS_DIR = ROOT
 LARVA_IMG = ASSETS_DIR / "larva.jpg"
@@ -38,7 +45,7 @@ MODEL_OPTIONS = {
     },
     "Qwen 0.6B Finetuned": {
         "repo": "jimmybach33/larvabot-0.6b",
-        "subfolder": "arvind-merged",
+        "subfolder": "arvind_merged",
     },
     "Llama 3.2 1B (Faster, less accurate)": {
         "repo": "meta-llama/Llama-3.2-1B-Instruct",
@@ -48,6 +55,7 @@ MODEL_OPTIONS = {
 
 @st.cache_resource
 def load_model(model_name, subfolder=None):
+    device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
     if subfolder is not None:
     
         tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN, subfolder=subfolder)
@@ -55,8 +63,7 @@ def load_model(model_name, subfolder=None):
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             token=HF_TOKEN,
-            device_map="auto",
-            torch_dtype="auto",
+            torch_dtype=torch.float16,
             subfolder=subfolder,
         )
     else:
@@ -65,11 +72,11 @@ def load_model(model_name, subfolder=None):
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             token=HF_TOKEN,
-            device_map="auto",
-            torch_dtype="auto",
+            torch_dtype=torch.float16,
         )
-
-    return tokenizer, model
+    model.to(device)
+    model.eval()
+    return tokenizer, model, device
 
 # -------------------
 # Session state
@@ -129,7 +136,7 @@ model_name = MODEL_OPTIONS[selected_model]['repo']
 model_subfolder = MODEL_OPTIONS[selected_model]['subfolder']
 
 with st.spinner("Loading model..."):
-    tokenizer, model = load_model(model_name, subfolder=model_subfolder)
+    tokenizer, model, device = load_model(model_name, subfolder=model_subfolder)
 
 # -------------------
 # Main page
@@ -166,7 +173,9 @@ if user_input:
                 tokenizer,
                 model,
                 user_input,
-                temperature=temperature
+                temperature=temperature,
+                device=device,
+                collection=arvind_collection
             )
 
         st.markdown(f"**Arvind:** {response}")
@@ -174,3 +183,6 @@ if user_input:
     st.session_state.messages.append(
         {"role": "assistant", "content": response}
     )
+
+    if(len(st.session_state.messages)>10):
+        st.session_state.messages=st.session_state.messages[-10:]
