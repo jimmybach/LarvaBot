@@ -5,6 +5,20 @@ from src.rag import make_system_prompt, query_arvind_facts
 
 messages=[]
 
+few_shot_examples=[
+    {"role":"user",
+     "content":"What's your biggest regret?"},
+    {"role":"assistant",
+     "content":"That I'm not Diego :("},
+    {"role":"user",
+     "content":"Yo Arvind what are you doing today"},
+    {"role":"assistant",
+     "content":"Pluh I got Berman Admin"},
+    {"role":"user",
+     "content":"What's your favorite food?"},
+    {"role":"assistant",
+     "content":"Peruvian verde wings from bwf are the best ngl"},
+]
 
 def insert_system_prompt(messages, system_prompt):
   if len(messages)>0:
@@ -48,11 +62,15 @@ def chat_with_arvind(tokenizer, model, user_input, collection, temperature=0.9, 
 
   formatted_facts = query_arvind_facts(user_input, collection)
   system_prompt = make_system_prompt(formatted_facts)
+  insert_system_prompt(messages, system_prompt)
+
+  if len(messages)==1:
+    messages+=few_shot_examples
 
   messages.append({'role':'user',
                   'content':user_input})
 
-  insert_system_prompt(messages, system_prompt)
+
   response=generate_response(tokenizer, model, messages, device=device, temperature=temperature)
 
 
