@@ -17,11 +17,13 @@ sys.path.insert(0, str(ROOT))
 from src.make_chat import chat_with_arvind as make_chat, clear_chat
 from src.rag import establish_chromadb_connection
 
-if not st.session_state.get("arvind_collection"):
-    arvind_collection = establish_chromadb_connection()
-    st.session_state.arvind_collection = arvind_collection
+if not st.session_state.get("arvind_facts"):
+    arvind_facts, arvind_texts = establish_chromadb_connection()
+    st.session_state.arvind_facts = arvind_facts
+    st.session_state.arvind_texts = arvind_texts
 else:
-    arvind_collection = st.session_state.arvind_collection
+    arvind_facts = st.session_state.arvind_facts
+    arvind_texts = st.session_state.arvind_texts
 
 ASSETS_DIR = ROOT
 LARVA_IMG = ASSETS_DIR / "larva.jpg"
@@ -52,15 +54,26 @@ MODEL_OPTIONS = {
         "subfolder": None,
     },
 
+    "Llama 3.2 1B Finetuned": {
+        "repo": "jimmybach33/arvind-llama-1b",
+        "subfolder": "arvind-llama-instruct",
+    },
+
+
     "Qwen 4B Finetuned (Slower)": {
         "repo": "jimmybach33/larvabot-qwen-4b",
         "subfolder": "arvind-merged",
+    },
+
+    "Qwen 4B Instruct (Slower)": {
+    "repo": "jimmybach33/larvabot-qwen-instruct",
+    "subfolder": "arvind-qwen-instruct",
     }
 }
 
 @st.cache_resource
 def load_model(model_name, subfolder=None):
-    device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     if subfolder is not None:
     
         tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN, subfolder=subfolder)
@@ -68,7 +81,8 @@ def load_model(model_name, subfolder=None):
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             token=HF_TOKEN,
-            torch_dtype=torch.float16,
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True,
             subfolder=subfolder,
         )
     else:
@@ -100,7 +114,7 @@ if "name" not in st.session_state:
 with st.sidebar:
     if YUNGVIND_IMG.exists():
         img = Image.open(YUNGVIND_IMG).rotate(-90, expand=True)
-        st.image(img, use_container_width=True)
+        st.image(img, width='stretch')
 
     st.title("LarvaBot")
 
@@ -119,7 +133,7 @@ with st.sidebar:
 
     st.text_input("Your name", key="name")
 
-    if st.button("Clear Chat", use_container_width=True):
+    if st.button("Clear Chat", width='stretch'):
         clear_chat()
         st.session_state.messages = []
         st.rerun()
@@ -180,8 +194,10 @@ if user_input:
                 user_input,
                 temperature=temperature,
                 device=device,
-                collection=arvind_collection
+                fact_collection=arvind_facts,
+                text_collection=arvind_texts
             )
+
 
         st.markdown(f"**Arvind:** {response}")
 
@@ -189,5 +205,5 @@ if user_input:
         {"role": "assistant", "content": response}
     )
 
-    if(len(st.session_state.messages)>10):
-        st.session_state.messages=st.session_state.messages[-10:]
+    if(len(st.session_state.messages)>20):
+        st.session_state.messages=st.session_state.messages[-20:]

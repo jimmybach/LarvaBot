@@ -51,6 +51,11 @@ MODEL_OPTIONS = {
         "repo": "meta-llama/Llama-3.2-1B-Instruct",
         "subfolder": None,
     },
+
+    "Llama 3.2 1B Finetuned": {
+        "repo": "jimmybach33/arvind-llama-1b",
+        "subfolder": "arvind-llama-instruct",
+    },
 }
 
 @st.cache_resource

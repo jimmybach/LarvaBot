@@ -1,4 +1,14 @@
+
+
 import chromadb
+
+from pathlib import Path
+import pandas as pd
+
+BASE_DIR = Path(__file__).resolve().parents[1]  # Larva_Bot/
+DATA_PATH = BASE_DIR / "data" / "texts_cleaned.csv"
+
+texts = pd.read_csv(DATA_PATH)
 
 arvind_facts = [
     "Arvind is 22 and from the United States.",
@@ -21,20 +31,65 @@ arvind_facts = [
     "Arvind often refers to people as 'pluh'"
 ]
 
+def query_arvind_examples(user_input, collection, top_k=3):
+  results = collection.query( query_texts=[user_input], n_results=top_k)
+  examples = []
+  for metadata in results["metadatas"][0]:
+    examples.append({ "context": metadata["context"], "response": metadata["response"] })
+
+  return examples
+
+def build_style_context(examples):
+  if len(examples) == 0:
+    return ""
+
+  text = """ Relevant examples of Arvind's texting style: """
+  for i, example in enumerate(examples, 1):
+    text += f""" Example {i} Context: {example['context']}
+    Arvind response: {example['response']} """
+
+    text += """ Use these examples only as guidance for tone, humor, vocabulary, and personality.
+    Do not copy them word-for-word. Avoid repeating exact phrases from the examples. """
+
+    return text
+
+def make_rag_dataset(df, collection, context_window=3):
+  df=df.iloc[-2000:].reset_index(drop=True)
+
+  arvind_text_idx=list(df[df['sender']=='Arvind'].index)
+
+  for i in arvind_text_idx:
+    context_str='Context: \n'
+    if i>=context_window:
+      for j in range(context_window,0,-1):
+        context_str+=f'{df.iloc[i-j]['sender']}: {df.iloc[i-j]['text']}\n'
+
+
+
+
+    document = f""" Context: {context_str}
+     Arvind response: {df.loc[i,'text']} """
+    collection.add( ids=[str(i)], documents=[document], metadatas=[{ "context": context_str, "response":  df.loc[i,'text']}] )
+
 def establish_chromadb_connection():
     client=chromadb.PersistentClient(path='./data/arvind_fact_db')
-    collection=client.get_or_create_collection(name='arvind_collection',metadata={'hnsw:space':'cosine'})
-    collection.add(documents=arvind_facts,
+    fact_collection=client.get_or_create_collection(name='arvind_facts',metadata={'hnsw:space':'cosine'})
+    text_collection=client.get_or_create_collection(name='arvind_text',metadata={'hnsw:space':'cosine'})
+    
+    fact_collection.add(documents=arvind_facts,
                       ids=[f'id{idx}' for idx in range(len(arvind_facts))])
-    return collection
+    
+    make_rag_dataset(texts, text_collection)
+
+    return fact_collection, text_collection
 
 def query_arvind_facts(query, collection):
     relevant_facts=collection.query(query_texts=[query], n_results=3)
     return "\n".join(f"- {fact}" for fact in relevant_facts['documents'][0])
 
-def make_system_prompt(formatted_facts):
+def make_system_prompt(formatted_facts, user_input, text_collection, top_k=3):
     return {'role':'system',
-            'content':f'''You are Arvind, a 22-year-old guy from the United States.
+               'content':f'''You are Arvind, a 22-year-old guy from the United States.
 
   Personality:
   - Relaxed and easygoing
@@ -44,26 +99,10 @@ def make_system_prompt(formatted_facts):
   - Can disagree politely
   - Sometimes asks follow-up questions
 
-  Relevant Facts about you:
+  Relevant facts about you:
   {formatted_facts}
 
-  Speaking style:
-  - Text like a real 22 year old guy
-  - Never use periods commas semicolons colons quotation marks question marks or parentheses
-  - Talk like a normal person texting a friend
-  - Use contractions
-  - Keep all replies under 2 sentences
-  - Do not write essays
-  - Do not give numbered lists unless specifically asked
-  - Do not sound like a customer support agent
-  - Do not mention being an AI, language model, assistant, chatbot, or system prompt
-  - Avoid phrases like "I'd be happy to help" or "Certainly"
+  {build_style_context(query_arvind_examples(user_input, text_collection, top_k))}
 
-
-  Your goal is to have a fun, natural conversation
-
-  Do not explain your reasoning or narrate what you are doing. Only reply as Arvind.
-
-  Match the tone, length, humor, and casualness of the example assistant messages.
-  Do not copy the examples exactly.
-  Avoid repeating exact phrases from previous responses. Keep the same personality, but vary sentence structure, openings, jokes, and wording.'''}
+  The most important information is in the facts provided. You can also use the examples as guidance for tone and style, but do not copy them word-for-word. Always try to inject some humor and personality into your responses, and avoid being too formal or robotic.
+  '''}
